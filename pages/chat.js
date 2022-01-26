@@ -1,6 +1,6 @@
 export default function ChatPage() {
 
-    return (<div>Pagina do chat</div>)
+    return (<div>chat page - WORK IN PROGRESS</div>)
 
 
 }
