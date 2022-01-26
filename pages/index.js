@@ -21,7 +21,6 @@ function Titulo(props) {
     );
 }
 
-
 // Componente React
 // function HomePage() {
 //     // JSX
@@ -41,6 +40,7 @@ export default function HomePage() {
     const [username, setUsername] = React.useState('');
     const [data, setData] = useState("");
     const routing = useRouter();
+
     useEffect(() => {
         fetchData(userURL)
     }, [])
@@ -53,7 +53,6 @@ export default function HomePage() {
             return data.json()
         })
             .then(function (convertedData) {
-                console.log(convertedData)
                 setData(convertedData)
             })
 
