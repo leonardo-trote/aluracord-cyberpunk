@@ -1,34 +1,9 @@
 import { Box, Button, Text, TextField, Image } from '@skynexui/components';
 import appConfig from '../config.json';
-
-function GlobalStyle() {
-    return (
-        <style global jsx>{`
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        list-style: none;
-      }
-      body {
-        font-family: 'JetBrains Mono';
-      }
-      /* App fit Height */ 
-      html, body, #__next {
-        min-height: 100vh;
-        display: flex;
-        flex: 1;
-      }
-      #__next {
-        flex: 1;
-      }
-      #__next > * {
-        flex: 1;
-      }
-      /* ./App fit Height */ 
-    `}</style>
-    );
-}
+import { useRouter } from 'next/router'
+import React from 'react'
+import { useState } from "react"
+import { useEffect } from "react"
 
 function Titulo(props) {
     const Tag = props.tag || 'h1';
@@ -46,6 +21,7 @@ function Titulo(props) {
     );
 }
 
+
 // Componente React
 // function HomePage() {
 //     // JSX
@@ -59,12 +35,41 @@ function Titulo(props) {
 // }
 // export default HomePage
 
-export default function PaginaInicial() {
-    const username = 'leonardo-trote';
+
+export default function HomePage() {
+    //const username = 'leonardo-trote';
+    const [username, setUsername] = React.useState('');
+    const [data, setData] = useState("");
+    const routing = useRouter();
+    useEffect(() => {
+        fetchData(userURL)
+    }, [])
+
+    const userURL = `https://api.github.com/users/${username}`
+
+    function fetchData(url) {
+
+        fetch(url).then(function (data) {
+            return data.json()
+        })
+            .then(function (convertedData) {
+                console.log(convertedData)
+                setData(convertedData)
+            })
+
+    }
+
+    console.log(data)
+
+    function checkUsername(user) {
+
+        if (user != null && user.length >= 1) {
+            return user;
+        }
+    }
 
     return (
         <>
-            <GlobalStyle />
             <Box
                 styleSheet={{
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -91,6 +96,13 @@ export default function PaginaInicial() {
                     {/* Formulário */}
                     <Box
                         as="form"
+                        onSubmit={function (event) {
+                            event.preventDefault()
+                            console.log('form submited')
+                            if (checkUsername(username)) {
+                                routing.push('/chat')
+                            }
+                        }}
                         styleSheet={{
                             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                             width: { xs: '100%', sm: '50%' }, textAlign: 'center', marginBottom: '32px',
@@ -101,7 +113,26 @@ export default function PaginaInicial() {
                             {appConfig.name}
                         </Text>
 
+                        {/*       <input
+                            type="text"
+                            value={username}
+                            onChange={function (event) {
+                                const inputValue = event.target.value;
+                                setUsername(inputValue);
+
+                            }}
+                        />*/}
+
                         <TextField
+                            placeholder='Type your username'
+                            value={username}
+                            onChange={function (event) {
+                                const inputValue = event.target.value;
+                                console.log('user typed ' + inputValue);
+                                setUsername(inputValue);
+
+                            }}
+
                             fullWidth
                             textFieldColors={{
                                 neutral: {
@@ -112,6 +143,9 @@ export default function PaginaInicial() {
                                 },
                             }}
                         />
+
+
+
                         <Button
                             type='submit'
                             label='Login'
@@ -143,12 +177,14 @@ export default function PaginaInicial() {
                             minHeight: '240px',
                         }}
                     >
+
+
                         <Image
                             styleSheet={{
                                 borderRadius: '50%',
                                 marginBottom: '16px',
                             }}
-                            src={`https://github.com/${username}.png`}
+                            src={checkUsername(username) ? `https://github.com/${username}.png` : 'https://sumaleeboxinggym.com/wp-content/uploads/2018/06/Generic-Profile-1600x1600.png'}
                         />
                         <Text
                             variant="body4"
@@ -159,7 +195,7 @@ export default function PaginaInicial() {
                                 borderRadius: '1000px'
                             }}
                         >
-                            {username}
+                            {data.followers}
                         </Text>
                     </Box>
                     {/* Photo Area */}
