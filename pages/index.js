@@ -194,7 +194,7 @@ export default function HomePage() {
                                 borderRadius: '1000px'
                             }}
                         >
-                            {data.followers}
+                            {username}
                         </Text>
                     </Box>
                     {/* Photo Area */}
