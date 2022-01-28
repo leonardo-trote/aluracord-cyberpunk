@@ -1,15 +1,30 @@
 import { Box, Text, TextField, Image, Button } from '@skynexui/components';
 import React from 'react';
 import appConfig from '../config.json';
+import { useRouter } from 'next/router'
 import { createClient } from '@supabase/supabase-js'
+import { ButtonSendSticker } from "../src/components/ButtonSendSticker"
 
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzM3NDk4NSwiZXhwIjoxOTU4OTUwOTg1fQ.TpkvZCIe5NlVcMHmi7gJAivathCpBhKdaFM4FYs5c_g"
 const SUPABASE_URL = "https://siiexvjyjdmdlyhvgecr.supabase.co"
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
+function escutaMensagensEmTempoReal(adicionaMensagem) {
+    return supabaseClient
+        .from('mensagens')
+        .on('INSERT', (respostaLive) => {
+            //console.love(novaMensagem)
+            adicionaMensagem(respostaLive.new)
+        })
+        .subscribe()
+}
 
 export default function ChatPage() {
 
+    const routing = useRouter();
+    const usuarioLogado = routing.query.username
+    //console.log(routing.query)
+    //console.log(usuarioLogado)
     const [mensagem, setMensagem] = React.useState('');
     const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
 
@@ -21,15 +36,22 @@ export default function ChatPage() {
             .then(({ data }) => {
                 setListaDeMensagens(data)
             })
+        escutaMensagensEmTempoReal((novaMensagem) => {
+            setListaDeMensagens((valorAtualDaLista) => {
+                return [
+                    novaMensagem,
+                    ...valorAtualDaLista
+                ]
+            });
+
+        })
     }, [])
-
-
 
     function handleNovaMensagem(novaMensagem) {
         const mensagem = {
             //id: listaDeMensagens.length + 1,
-            de: 'leonardo-trote',
-            texto: novaMensagem,
+            de: usuarioLogado,
+            texto: novaMensagem
         };
 
         supabaseClient
@@ -38,13 +60,9 @@ export default function ChatPage() {
                 mensagem
             ])
             .then(({ data }) => {
-
-                setListaDeMensagens([
-                    data[0],
-                    ...listaDeMensagens,
-                ]);
+                console.log("criando mensagem")
+                setMensagem("")
             })
-        setMensagem('');
     }
 
     return (
@@ -124,6 +142,14 @@ export default function ChatPage() {
                                 color: appConfig.theme.colors.neutrals[200],
                             }}
                         />
+                        <ButtonSendSticker
+
+                            onStickerClick={(sticker) => {
+                                //console.log("[usando o componente] salva no banco")
+                                handleNovaMensagem(':sticker:' + sticker)
+                            }}
+
+                        />
                     </Box>
                 </Box>
             </Box>
@@ -150,7 +176,7 @@ function Header() {
 }
 
 function MessageList(props) {
-    console.log(props);
+    //console.log(props);
     return (
         <Box
             tag="ul"
@@ -206,7 +232,22 @@ function MessageList(props) {
                                 {(new Date().toLocaleDateString())}
                             </Text>
                         </Box>
-                        {mensagem.texto}
+                        {mensagem.texto.startsWith(":sticker:")
+                            ? (
+                                <Image
+                                    styleSheet={{
+                                        width: '120px',
+                                        height: '120px',
+                                        display: 'inline-block',
+                                        marginRight: '8px',
+                                    }}
+                                    src={mensagem.texto.replace(":sticker:", '')} />
+                            )
+                            : (
+                                mensagem.texto
+                            )
+                        }
+
                     </Text>
                 );
             })}
