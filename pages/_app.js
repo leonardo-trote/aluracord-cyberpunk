@@ -25,6 +25,7 @@ function GlobalStyle() {
       /* ./App fit Height */ 
     `}</style>
   );
+
 }
 
 export default function MyApp({ Component, pageProps }) {
