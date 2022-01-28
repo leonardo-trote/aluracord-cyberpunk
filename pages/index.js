@@ -9,6 +9,7 @@ function Titulo(props) {
     const Tag = props.tag || 'h1';
     return (
         <>
+
             <Tag>{props.children}</Tag>
             <style jsx>{`
             ${Tag} {
@@ -58,7 +59,7 @@ export default function HomePage() {
 
     }
 
-    console.log(data)
+    //console.log(data)
 
     function checkUsername(user) {
 
@@ -97,9 +98,9 @@ export default function HomePage() {
                         as="form"
                         onSubmit={function (event) {
                             event.preventDefault()
-                            console.log('form submited')
+                            //console.log('form submited')
                             if (checkUsername(username)) {
-                                routing.push('/chat')
+                                routing.push(`/chat?username=${username}`)
                             }
                         }}
                         styleSheet={{
@@ -127,7 +128,7 @@ export default function HomePage() {
                             value={username}
                             onChange={function (event) {
                                 const inputValue = event.target.value;
-                                console.log('user typed ' + inputValue);
+                                //console.log('user typed ' + inputValue);
                                 setUsername(inputValue);
 
                             }}
