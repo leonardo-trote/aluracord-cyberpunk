@@ -1,23 +1,49 @@
 import { Box, Text, TextField, Image, Button } from '@skynexui/components';
 import React from 'react';
 import appConfig from '../config.json';
+import { createClient } from '@supabase/supabase-js'
+
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzM3NDk4NSwiZXhwIjoxOTU4OTUwOTg1fQ.TpkvZCIe5NlVcMHmi7gJAivathCpBhKdaFM4FYs5c_g"
+const SUPABASE_URL = "https://siiexvjyjdmdlyhvgecr.supabase.co"
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
 
 export default function ChatPage() {
 
     const [mensagem, setMensagem] = React.useState('');
     const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
 
+    React.useEffect(() => {
+        supabaseClient
+            .from("mensagens")
+            .select("*")
+            .order("id", { ascending: false })
+            .then(({ data }) => {
+                setListaDeMensagens(data)
+            })
+    }, [])
+
+
+
     function handleNovaMensagem(novaMensagem) {
         const mensagem = {
-            id: listaDeMensagens.length + 1,
+            //id: listaDeMensagens.length + 1,
             de: 'leonardo-trote',
             texto: novaMensagem,
         };
 
-        setListaDeMensagens([
-            mensagem,
-            ...listaDeMensagens,
-        ]);
+        supabaseClient
+            .from("mensagens")
+            .insert([
+                mensagem
+            ])
+            .then(({ data }) => {
+
+                setListaDeMensagens([
+                    data[0],
+                    ...listaDeMensagens,
+                ]);
+            })
         setMensagem('');
     }
 
@@ -26,7 +52,7 @@ export default function ChatPage() {
             styleSheet={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 backgroundColor: appConfig.theme.colors.primary[500],
-                backgroundImage: `url(https://virtualbackgrounds.site/wp-content/uploads/2020/08/the-matrix-digital-rain.jpg)`,
+                backgroundImage: `url(https://camo.githubusercontent.com/abb0a7a6197ffbe011c0705b0fff8c494e9c4c58913db99fe951ec7ca0eb97f5/68747470733a2f2f63646e612e61727473746174696f6e2e636f6d2f702f6173736574732f696d616765732f696d616765732f3032382f3130322f3035382f6f726967696e616c2f706978656c2d6a6566662d6d61747269782d732e6769663f31353933343837323633)`,
                 backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundBlendMode: 'multiply',
                 color: appConfig.theme.colors.neutrals['000']
             }}
@@ -164,7 +190,7 @@ function MessageList(props) {
                                     display: 'inline-block',
                                     marginRight: '8px',
                                 }}
-                                src={`https://github.com/vanessametonini.png`}
+                                src={`https://github.com/${mensagem.de}.png`}
                             />
                             <Text tag="strong">
                                 {mensagem.de}
